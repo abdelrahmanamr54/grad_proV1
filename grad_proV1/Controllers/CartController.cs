@@ -13,14 +13,14 @@ using System.Text;
 
 namespace grad_proV1.Controllers
 {
-   // [Authorize]
+    // [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CartController : ControllerBase
     {
         private readonly ApplicationDbContext context;
         private readonly ICartRepository cartRepository;
-         public CartController(ICartRepository cartRepository, ApplicationDbContext context)
+        public CartController(ICartRepository cartRepository, ApplicationDbContext context)
         {
             this.context = context;
             this.cartRepository = cartRepository;
@@ -33,7 +33,7 @@ namespace grad_proV1.Controllers
             }
             return null;
         }
-      
+
         private string GetUserIdFromToken(string token)
         {
             try
@@ -74,11 +74,11 @@ namespace grad_proV1.Controllers
         [Route("/api/Cart/userid")]
         public async Task<IActionResult> getuserid()
         {
-            string id =Convert.ToString(HttpContext.User.FindFirstValue("userid"));
-            return Ok(new {user=id});
+            string id = Convert.ToString(HttpContext.User.FindFirstValue("userid"));
+            return Ok(new { user = id });
         }
 
-    
+
         [HttpPost]
         [Route("AddToCart")]
         //  [HttpPost("AddToCart")]
@@ -175,7 +175,7 @@ namespace grad_proV1.Controllers
 
         [HttpGet]
         [Route("userCart")]
-     
+
         public IActionResult getUserCart()
         {
             try
@@ -222,30 +222,30 @@ namespace grad_proV1.Controllers
                 string userId = userIdClaim.Value;
 
 
-                var usercart = context.CartItems.Include(e=> e.Product).Where(e => e.UserId == userId).ToList();
+                var usercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
 
-              
+
 
                 var order = new Order();
 
-             
+
                 order.products = new List<Product>();
 
-          
+
                 foreach (var cartItem in usercart)
                 {
-                    
+
                     order.products.Add(cartItem.Product);
                 }
 
-            
+
                 context.Orders.Add(order);
                 context.SaveChanges();
 
-             var ordersv1 = context.Orders.Select(e => e.products);
+                var ordersv1 = context.Orders.Select(e => e.products);
 
 
-               
+
                 //  var usercartv = context.Orders.Include(e => e.cartItems).Where(e => e. == userId).ToList();
 
                 return Ok(usercart);
@@ -255,7 +255,7 @@ namespace grad_proV1.Controllers
                 return StatusCode(500, "An error occurred: " + ex.Message);
 
             }
-            }
+        }
         [HttpPost]
         [Route("checkout")]
         public IActionResult checkout()
@@ -338,13 +338,13 @@ namespace grad_proV1.Controllers
         public IActionResult getAllOrder()
         {
 
-            var orders = context.Orders.Include(e=>e.products).ToList();
+            var orders = context.Orders.Include(e => e.products).ToList();
             return Ok(orders);
         }
         [HttpGet]
 
         [Route("getAllVendorId")]
-       // [Authorize]
+        // [Authorize]
         public IActionResult getAllVendorId()
         {
 
@@ -366,7 +366,7 @@ namespace grad_proV1.Controllers
         }
 
         [HttpGet]
-       // [Authorize]
+        // [Authorize]
         public IActionResult getAllCarst()
         {
 
@@ -374,12 +374,116 @@ namespace grad_proV1.Controllers
             return Ok(items);
         }
         [HttpDelete]
-        public IActionResult DeleteCart( int id)
+        public IActionResult DeleteCart(int id)
         {
             cartRepository.Delete(id);
-            return Ok();
-        }
 
-       
+            //var items = context.CartItems.ToList();
+           
+
+                var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+                if (token == null)
+                {
+                    return Unauthorized("Authorization token is missing.");
+                }
+
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var tokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("MnGsJFpXngBcaNeMSqIviSJbrOwaWM")),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                SecurityToken validatedToken;
+                ClaimsPrincipal claimsPrincipal;
+
+                try
+                {
+                    claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out validatedToken);
+                }
+                catch (Exception ex)
+                {
+                    return Unauthorized("Invalid token: " + ex.Message);
+                }
+
+                // Find the claim containing the user ID
+                var userIdClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User ID claim not found in token.");
+                }
+
+                string userId = userIdClaim.Value;
+
+
+                var usercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
+
+                return Ok(usercart);
+        }
+        [HttpPut("remove")]
+        public IActionResult RemoveOneFromCart(int id)
+        {
+
+            var cartItem = context.CartItems.Find(id);
+
+
+
+            if (cartItem.Quantity > 1)
+            {
+
+                var itemToUpdate = new CartItem
+                {
+                    UserId = cartItem.UserId,
+                    ProductId = cartItem.ProductId,
+                    Quantity = cartItem.Quantity--
+                };
+
+                context.CartItems.Update(itemToUpdate);
+                context.SaveChanges();
+
+                return Ok();
+            }
+            else
+            {
+
+                return Ok("No change");
+            }
+        }
+        [HttpPut("AddOne")]
+        public IActionResult AddOneFromCart(int id)
+        {
+
+            var cartItem = context.CartItems.Find(id);
+
+
+
+            if (cartItem.Quantity >= 1)
+            {
+
+                var itemToUpdate = new CartItem
+                {
+                    UserId = cartItem.UserId,
+                    ProductId = cartItem.ProductId,
+                    Quantity = cartItem.Quantity++
+                };
+
+                context.CartItems.Update(itemToUpdate);
+                context.SaveChanges();
+
+                return Ok();
+            }
+            else
+            {
+
+                return Ok("No change");
+            }
+
+        }
     }
 }
