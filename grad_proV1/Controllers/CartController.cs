@@ -426,7 +426,68 @@ namespace grad_proV1.Controllers
 
                 return Ok(Newusercart);
         }
-        [HttpPut("remove")]
+        [HttpPut("updateQuantity")]
+        public IActionResult updateQuantity(int id,int quantity)
+        {
+            var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            if (token == null)
+            {
+                return Unauthorized("Authorization token is missing.");
+            }
+
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("MnGsJFpXngBcaNeMSqIviSJbrOwaWM")),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ClockSkew = TimeSpan.Zero
+            };
+
+            SecurityToken validatedToken;
+            ClaimsPrincipal claimsPrincipal;
+
+            try
+            {
+                claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out validatedToken);
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized("Invalid token: " + ex.Message);
+            }
+
+            // Find the claim containing the user ID
+            var userIdClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID claim not found in token.");
+            }
+
+            string userId = userIdClaim.Value;
+
+            var item = context.CartItems.Find(id);
+            var itemToUpdate = new CartItem
+            {
+                UserId = item.UserId,
+                ProductId = item.ProductId,
+                Quantity = quantity
+            };
+
+            context.CartItems.Update(itemToUpdate);
+            context.SaveChanges();
+
+
+            var Newusercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
+
+            return Ok(Newusercart);
+        }
+
+
+            [HttpPut("remove")]
         public IActionResult RemoveOneFromCart(int id)
         {
 
