@@ -16,13 +16,15 @@ namespace grad_proV1.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IConfiguration configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         UserManager<ApplicationUser> userManager;
         SignInManager<ApplicationUser> signIn;
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signIn, IConfiguration configuration)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signIn, IConfiguration configuration, IHttpContextAccessor _httpContextAccessor)
         {
             this.userManager = userManager;
             this.signIn = signIn;
             this.configuration = configuration;
+            this._httpContextAccessor= _httpContextAccessor; ;
         }
 
         //private async Task<string> GenerateJwtToken(ApplicationUser user)
@@ -65,68 +67,94 @@ namespace grad_proV1.Controllers
 
         //    return tokenString;
         //}
+        private string GenerateToken(ApplicationUser userVM)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+        new Claim(JwtRegisteredClaimNames.Sub, userVM.UserName),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(ClaimTypes.NameIdentifier, userVM.Id),
+        new Claim(ClaimTypes.Email, userVM.Email),
+        new Claim(ClaimTypes.Role, "User")
+    };
+
+            var token = new JwtSecurityToken(
+                issuer: configuration["Jwt:Issuer"],
+                audience: configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+    //    private string generayrToken(ApplicationUser userVM)
+    //    {
+    //        var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+    //        var cred = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256);
+    //        var claims = new[]
+    //{
+                              
+    //                            new Claim(ClaimTypes.Email,  userVM.Email),
+                             
+    //                            new Claim(ClaimTypes.NameIdentifier,  userVM.Id),
+    //                            new Claim(ClaimTypes.Role,"user")
+                               
+    //                        };
+    //        var token = new JwtSecurityToken(configuration["Jwt:Issuer"], configuration["Jwt:Audience"], claims: claims, expires: DateTime.Now.AddDays(1), signingCredentials: cred
+    //);
+    //        return new JwtSecurityTokenHandler().WriteToken(token);
+    //    }
+
+
+
 
         //      private string generayrToken(ApplicationUser userVM)
         //      {
         //          var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
-        //          var cred = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256);
+        //          var cred = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256); // Use HmacSha256 algorithm
+        //                                                                                         //   var claimsIdentity = new ClaimsIdentity(new IdentityOptions().ClaimsIdentity);
+        //                                                                                         //   claimsIdentity.AddClaim(new Claim(ClaimTypes.Sub, userId.ToString())); // Use ClaimTypes.Sub for subject
         //          var claims = new[]
         //{
-        //            new Claim("id", userVM.Id),
-        //            new Claim(ClaimTypes.Email,  userVM.Email),
-        //            new Claim("email",  userVM.Email),
-        //            new Claim(,  userVM.Id),
-        //             new Claim(ClaimTypes.as,  userVM.Email),
-        //             Add other claims as needed
-        //        };
-        //          var token = new JwtSecurityToken(configuration["Jwt:Issuer"], configuration["Jwt:Audience"], claims: claims, expires: DateTime.Now.AddDays(1), signingCredentials: cred
-        //);
-        //          return new JwtSecurityTokenHandler().WriteToken(token);
+        //                              new Claim(ClaimTypes.NameIdentifier, userVM.Id.ToString()),
+        //                              new Claim(ClaimTypes.Email,  userVM.Email)
+        //                              // Add other claims as needed
+        //                          };
+        //          var tokenDescriptor = new SecurityTokenDescriptor
+        //          {
+        //              Subject = new ClaimsIdentity(new Claim[]
+        //                  {
+        //                                  new Claim(ClaimTypes.Email
+
+        //                                      , userVM.Email),
+        //                             //     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+        //                                  new Claim(ClaimTypes.NameIdentifier, userVM.Id),
+        //                                  new Claim("sub", userVM.Id.ToString()
+        //                                       ),
+        //                                 //    new Claim(ClaimTypes.Role, userVM.Role), 
+        //                                  new Claim("nbf", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
+        //                      new Claim("exp", DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds().ToString()),
+        //                      new Claim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
+        //                      // Add other claims as needed
+        //                  }),
+
+
+
+
+        //              Expires = DateTime.UtcNow.AddDays(1), // Token expiry
+        //              SigningCredentials = cred
+        //          };
+        //          var tokenHandler = new JwtSecurityTokenHandler();
+        //          var token = tokenHandler.CreateToken(tokenDescriptor);
+        //          var tokenString = tokenHandler.WriteToken(token);
+
+        //          return tokenString;
         //      }
-        private string generayrToken(ApplicationUser userVM)
-        {
-            var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
-            var cred = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256); // Use HmacSha256 algorithm
-         //   var claimsIdentity = new ClaimsIdentity(new IdentityOptions().ClaimsIdentity);
-         //   claimsIdentity.AddClaim(new Claim(ClaimTypes.Sub, userId.ToString())); // Use ClaimTypes.Sub for subject
-            var claims = new[]
-  {
-                    new Claim(ClaimTypes.NameIdentifier, userVM.Id.ToString()),
-                    new Claim(ClaimTypes.Email,  userVM.Email)
-                    // Add other claims as needed
-                };
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                    {
-                        new Claim(ClaimTypes.Email
-
-                            , userVM.Email),
-                        new Claim(ClaimTypes.NameIdentifier, userVM.Id),
-                        new Claim("sub", userVM.Id.ToString()
-                             ),
-                        new Claim("name", userVM.Email),
-                        new Claim("nbf", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
-            new Claim("exp", DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds().ToString()),
-            new Claim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
-                        // Add other claims as needed
-                    }),
-
-
-
-
-             //   Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.NameIdentifier, userVM.Id.ToString()) }),
-               // Expires = DateTime.UtcNow.AddHours(1), // Token expiration time
-               /// SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                Expires = DateTime.UtcNow.AddDays(1), // Token expiry
-                SigningCredentials = cred
-            };
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
-
-            return tokenString;
-        }
 
 
         [HttpPost]
@@ -171,8 +199,14 @@ namespace grad_proV1.Controllers
                     {
                         await signIn.SignInAsync(result, userVM.RememberMe);
                   //      var user = await signIn.PasswordSignInAsync(userName, Password, false);
-                        var token = generayrToken(result);
-
+                        var token = GenerateToken(result);
+                     
+                        var cookieOptions = new CookieOptions
+                         {
+                            HttpOnly = true,
+                            // Add other options as needed (e.g., expiration time)
+                        };
+                        _httpContextAccessor.HttpContext.Response.Cookies.Append("token", token, cookieOptions);
                         var msg = "succes";
                      
                         return Ok(new

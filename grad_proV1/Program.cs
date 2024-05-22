@@ -5,6 +5,7 @@ using grad_proV1.Models;
 using grad_proV1.Repository;
 using gradproV1.Migrations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,9 @@ namespace grad_proV1
         {
            // var builder = WebApplication.CreateBuilder(args);
             var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+           
+
+   
 
         //      private readonly IConfiguration _configuration;
 
@@ -27,7 +31,32 @@ namespace grad_proV1
         //    _configuration = configuration;
         //}
         var builder = WebApplication.CreateBuilder(args);
-         
+
+            //var key = Encoding.ASCII.GetBytes("MnGsJFpXngBcaNeMSqIviSJbrOwaWM");
+
+            //builder.Services.AddAuthentication(options =>
+            //{
+            //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            //})
+            //.AddJwtBearer(options =>
+            //{
+            //    options.RequireHttpsMetadata = true;
+            //    options.SaveToken = true;
+            //    options.TokenValidationParameters = new TokenValidationParameters
+            //    {
+            //        ValidateIssuer = true,
+            //        ValidateAudience = true,
+            //        ValidateLifetime = true,
+            //        ValidateIssuerSigningKey = true,
+            //        ValidIssuer = "http://bussinesshub.runasp.net/",
+            //        ValidAudience = "http://localhost:4200/",
+            //        IssuerSigningKey = new SymmetricSecurityKey(key)
+            //    };
+            //});
+
+            //builder.Services.AddAuthorization();
+
 
             //CROS.2
             builder.Services.AddCors(options =>
@@ -35,36 +64,48 @@ namespace grad_proV1
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                                   policy =>
                                   {
-                                      //AllowAnyOrigin()
-                                      policy.WithOrigins("http://localhost:4200") 
-                       .AllowAnyHeader()
+                                  //AllowAnyOrigin()
+                                  policy.WithOrigins("http://localhost:4200")
+
+                          //WithOrigins("http://localhost:4200") 
+                          .AllowAnyHeader()
                        .AllowAnyMethod()
                       .AllowCredentials();
                                       //.
                                       //WithOrigins("http://localhost:49566")
                                   });
             });
+        
 
-
-
-            //void ConfigureServices(IServiceCollection services)
+            //public  void ConfigureServices(IServiceCollection services)
+            //  {
+            //      builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //   .AddJwtBearer(options =>
+            //   {
+            //       options.TokenValidationParameters = new TokenValidationParameters
+            //       {
+            //           ValidateIssuer = true, // Set to true if you want to validate issuer
+            //           ValidateAudience = true, // Set to true if you want to validate audience
+            //           ValidateLifetime = true,
+            //           ValidateIssuerSigningKey = true,
+            //           IssuerSigningKey = GetSigningKey(), // Replace with your signing key logic
+            //           Issuer = "Your_Issuer", // Replace with the issuer string from your token
+            //           Audience = "Your_Audience" // Replace with the audience string from your token
+            //       };
+            //   });
+            //  }
+            //public void Configure(IApplicationBuilder app)
             //{
-            //    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            // .AddJwtBearer(options =>
-            // {
-            //     options.TokenValidationParameters = new TokenValidationParameters
-            //     {
-            //         ValidateIssuer = true, // Set to true if you want to validate issuer
-            //         ValidateAudience = true, // Set to true if you want to validate audience
-            //         ValidateLifetime = true,
-            //         ValidateIssuerSigningKey = true,
-            //         IssuerSigningKey = GetSigningKey(), // Replace with your signing key logic
-            //         Issuer = "Your_Issuer", // Replace with the issuer string from your token
-            //         Audience = "Your_Audience" // Replace with the audience string from your token
-            //     };
-            // });
-            //}
+            //    // Middleware configurations...
 
+            //    // Use authentication middleware
+            //    app.UseAuthentication();
+
+            //    // Use authorization middleware
+            //    app.UseAuthorization();
+
+            //    // Other middleware configurations...
+            //}
             //SymmetricSecurityKey GetSigningKey()
             //{
             //    Implement your logic to retrieve the signing key from a secure location
@@ -73,19 +114,106 @@ namespace grad_proV1
             //    return new SymmetricSecurityKey(Encoding.ASCII.GetBytes(signingKey));
             //}
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme
-                ).AddJwtBearer(e => e.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateAudience = true,
-                    ValidateIssuer = true,
-                    ValidateLifetime = true,
-                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                    ValidAudience = builder.Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-                });
-            // Add services to the container.
+
+
+
+            // builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme
+            //     ).AddJwtBearer(e => e.TokenValidationParameters = new TokenValidationParameters
+            //     {
+            //         ValidateAudience = true,
+            //         ValidateIssuer = true,
+            //         ValidateLifetime = true,
+            //         ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            //         ValidAudience = builder.Configuration["Jwt:Audience"],
+            //         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+            //     });
+            //builder.Services.AddAuthorization();
+            // builder.Services.AddHttpContextAccessor();
+            //builder.Services.AddAuthorization(options =>
+            // {
+            //     options.AddPolicy("RequireUserRole",
+            //          policy => policy.RequireRole("user"));
+            // });
+
+
+            // var key = Encoding.ASCII.GetBytes("MnGsJFpXngBcaNeMSqIviSJbrOwaWM");
+            //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //     .AddJwtBearer(options =>
+            //     {
+            //         options.TokenValidationParameters = new TokenValidationParameters
+            //         {
+            //             ValidateIssuerSigningKey = true,
+            //             IssuerSigningKey = new SymmetricSecurityKey(key),
+            //             ValidateIssuer = false,
+            //             ValidateAudience = false
+            //         };
+            //     });
+            //   builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //.AddJwtBearer(options =>
+            //{
+            //    options.TokenValidationParameters = new TokenValidationParameters
+            //    {
+            //        ValidateIssuer = true, // Set to true to validate the token issuer
+            //        ValidateAudience = true, // Set to true to validate the token audience
+            //        ValidateLifetime = true, // Set to true to validate the token lifetime
+            //        ValidateIssuerSigningKey = true, // Set to true to validate the token signature
+            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])), // Replace with your signing key logic
+            //        ValidIssuer = "http://bussinesshub.runasp.net/", // Replace with your token issuer string
+            //        ValidAudience = "http://localhost:4200/", // Replace with your token audience string
+            //        ClockSkew = TimeSpan.Zero // Set to a small value (e.g., 5 minutes) to account for clock differences
+            //    };
+
+            //});
+            //var key = Encoding.ASCII.GetBytes("your-secret-key"); // Replace with your secret key
+            //builder.services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //    .AddJwtBearer(options =>
+            //    {
+            //        options.TokenValidationParameters = new TokenValidationParameters
+            //        {
+            //            ValidateIssuerSigningKey = true,
+            //            IssuerSigningKey = new SymmetricSecurityKey(key),
+            //            ValidateIssuer = false,
+            //            ValidateAudience = false,
+            //            ClockSkew = TimeSpan.Zero
+            //        };
+            //    });
+
+            //// Add authorization policy if needed
+            //services.AddAuthorization();
+
+            // Add services
+            // to the container.
 
             builder.Services.AddControllers();
+            var key = builder.Configuration["Jwt:Key"];
+            //Encoding.ASCII.GetBytes("MnGsJFpXngBcaNeMSqIviSJbrOwaWM");
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = true;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+                };
+            });
+
+            builder.Services.AddAuthorization(options =>
+             {
+                 // options.AddPolicy("RequireUserRole", policy => policy.RequireRole("User"));
+                 // options.AddPolicy("RequireVendorRole", policy => policy.RequireRole("Vendor"));
+             });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -98,7 +226,8 @@ namespace grad_proV1
             builder.Services.AddTransient<ISubCategoryRepository, SubCategoryRepository>();
             builder.Services.AddTransient<ICartRepository, CartRepository>();
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders(); 
+
             //var app = builder.Build();
 
             var app = builder.Build();
@@ -210,6 +339,7 @@ namespace grad_proV1
             //}
             app.UseHttpsRedirection();
             app.UseCors(MyAllowSpecificOrigins);
+         //   app.usetoken();
             app.UseAuthentication();
             app.UseAuthorization();
             //app.UseEndpoints(endpoints =>
@@ -218,7 +348,11 @@ namespace grad_proV1
             //});
 
 
-           app.MapControllers();
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapControllers();
+            //});
+            app.MapControllers();
 
             app.Run();
         }

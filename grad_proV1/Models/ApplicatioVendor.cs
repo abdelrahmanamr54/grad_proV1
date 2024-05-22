@@ -2,7 +2,8 @@
 
 namespace grad_proV1.Models
 {
-    public class ApplicatioVendor :IdentityUser 
+    public class ApplicatioVendor 
     {
+
     }
 }

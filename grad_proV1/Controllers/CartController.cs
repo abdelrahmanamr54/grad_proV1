@@ -13,7 +13,7 @@ using System.Text;
 
 namespace grad_proV1.Controllers
 {
-   
+   // [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CartController : ControllerBase
@@ -81,13 +81,40 @@ namespace grad_proV1.Controllers
     
         [HttpPost]
         [Route("AddToCart")]
+        //  [HttpPost("AddToCart")]
+        //public async Task<IActionResult> AddToCart(int productId)
+        //{
+        //    try
+        //    {
+        //        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //        if (userId == null)
+        //        {
+        //            return Unauthorized("User ID claim not found in token.");
+        //        }
 
-      // [Authorize]
+        //        var addedToCart = await cartRepository.AddToCartAsync(productId, userId);
+        //        if (addedToCart)
+        //        {
+        //            var response = new { message = "Product added to cart", productId };
+        //            return Ok(response);
+        //        }
+
+        //        return BadRequest("Failed to add product to cart.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, "An error occurred: " + ex.Message);
+        //    }
+        //}
+
+        //  [Authorize(Roles = "User")]
+        //[Authorize]
+
         public async Task<IActionResult> AddToCart(int productId)
         {
             try
             {
-              
+
                 var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
                 if (token == null)
@@ -95,7 +122,7 @@ namespace grad_proV1.Controllers
                     return Unauthorized("Authorization token is missing.");
                 }
 
-                
+
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var tokenValidationParameters = new TokenValidationParameters
                 {
@@ -112,6 +139,7 @@ namespace grad_proV1.Controllers
                 try
                 {
                     claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out validatedToken);
+
                 }
                 catch (Exception ex)
                 {
@@ -130,10 +158,10 @@ namespace grad_proV1.Controllers
                 var addedToCart = await cartRepository.AddToCartAsync(productId, userId);
                 if (addedToCart)
                 {
-                    var response =JsonConvert.SerializeObject(new { message = "Product added to cart", productId = productId });
+                    var response = JsonConvert.SerializeObject(new { message = "Product added to cart", productId = productId });
                     return Ok(response);
                 }
-               
+
 
                 return Ok("Product successfully added to cart.");
             }
@@ -143,10 +171,11 @@ namespace grad_proV1.Controllers
             }
         }
 
-       
+
 
         [HttpGet]
         [Route("userCart")]
+     
         public IActionResult getUserCart()
         {
             try
@@ -337,6 +366,7 @@ namespace grad_proV1.Controllers
         }
 
         [HttpGet]
+       // [Authorize]
         public IActionResult getAllCarst()
         {
 

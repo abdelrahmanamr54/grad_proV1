@@ -61,11 +61,11 @@ namespace grad_proV1.Repository
             else
             {
                 context.CartItems.Add(new CartItem { ProductId = productId, UserId =userId , Quantity = 1 });
-             //   "3c9e9e0d-485d-4565-9fcb-0b89be118751"
+            
             }
 
             context.SaveChanges();
-            return true; // Indicate successful addition
+            return true; 
         }
         public void RemoveFromCart(int productId, string userId)
         {

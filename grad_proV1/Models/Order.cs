@@ -6,8 +6,6 @@ namespace grad_proV1.Models
     {
       //  [Key]
       public  int Id { get; set; }
-        
-
         public List<Product> products { get; set; }
     }
 }

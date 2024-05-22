@@ -2,6 +2,7 @@
 using grad_proV1.IRepositery;
 using grad_proV1.Models;
 using grad_proV1.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -21,6 +22,7 @@ namespace grad_proV1.Controllers
         }
         [HttpGet]
         [Route("/api/Products/AllProduct")]
+       // [Authorize(Roles = "user")]
         public IActionResult Read()
         {
 
@@ -101,6 +103,8 @@ namespace grad_proV1.Controllers
 
             return Ok(selectedProduct);
         }
+
+        
 
 
     }
