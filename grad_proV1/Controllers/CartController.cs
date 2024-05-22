@@ -422,9 +422,9 @@ namespace grad_proV1.Controllers
                 string userId = userIdClaim.Value;
 
 
-                var usercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
+                var Newusercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
 
-                return Ok(usercart);
+                return Ok(Newusercart);
         }
         [HttpPut("remove")]
         public IActionResult RemoveOneFromCart(int id)
