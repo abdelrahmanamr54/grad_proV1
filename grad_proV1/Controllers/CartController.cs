@@ -481,7 +481,7 @@ namespace grad_proV1.Controllers
             context.SaveChanges();
 
 
-            var Newusercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
+           var Newusercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
 
             return Ok(Newusercart);
         }
