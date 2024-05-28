@@ -133,7 +133,7 @@ namespace grad_proV1.Controllers
                                           new Claim(ClaimTypes.Email
 
                                               , userVM.Email),
-                                           new Claim(JwtRegisteredClaimNames.Sub, userVM.Provider.ToString()),
+                                           new Claim("sub", userVM.Provider.ToString()),
                                      //     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                                           new Claim(ClaimTypes.NameIdentifier, userVM.Id),
                                           //new Claim("sub", userVM.Id.ToString()

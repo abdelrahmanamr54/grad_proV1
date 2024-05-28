@@ -188,7 +188,7 @@ namespace grad_proV1.Controllers
             return bookingItems;
         }
         [HttpGet("GetBookingofEachprovider")]
-        public async Task<IActionResult> GetBookingofEachprovider(int providerid)
+        public async Task<IActionResult> GetBookingofEachprovider()
         {
             var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
@@ -222,7 +222,7 @@ namespace grad_proV1.Controllers
             }
 
             // Find the claim containing the user ID
-            var userIdClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
+            var userIdClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
 
             if (userIdClaim == null)
             {
