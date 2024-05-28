@@ -67,94 +67,96 @@ namespace grad_proV1.Controllers
 
         //    return tokenString;
         //}
-        private string GenerateToken(ApplicationUser userVM)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        //    private string GenerateToken(ApplicationUser userVM)
+        //    {
+        //        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+        //        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
-            {
-        new Claim(JwtRegisteredClaimNames.Sub, userVM.UserName),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        new Claim(ClaimTypes.NameIdentifier, userVM.Id),
-        new Claim(ClaimTypes.Email, userVM.Email),
-        new Claim(ClaimTypes.Role, "User")
-    };
+        //        var claims = new[]
+        //        {
+        //    new Claim(JwtRegisteredClaimNames.Sub, userVM.UserName),
+        //    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        //    new Claim(ClaimTypes.NameIdentifier, userVM.Id),
+        //    new Claim(ClaimTypes.Email, userVM.Email),
+        ////    new Claim(ClaimTypes.SerialNumber, 10)
+        //};
 
-            var token = new JwtSecurityToken(
-                issuer: configuration["Jwt:Issuer"],
-                audience: configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddDays(1),
-                signingCredentials: credentials
-            );
+        //        var token = new JwtSecurityToken(
+        //            issuer: configuration["Jwt:Issuer"],
+        //            audience: configuration["Jwt:Audience"],
+        //            claims: claims,
+        //            expires: DateTime.Now.AddDays(1),
+        //            signingCredentials: credentials
+        //        );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+        //        return new JwtSecurityTokenHandler().WriteToken(token);
+        //    }
 
-    //    private string generayrToken(ApplicationUser userVM)
-    //    {
-    //        var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
-    //        var cred = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256);
-    //        var claims = new[]
-    //{
-                              
-    //                            new Claim(ClaimTypes.Email,  userVM.Email),
-                             
-    //                            new Claim(ClaimTypes.NameIdentifier,  userVM.Id),
-    //                            new Claim(ClaimTypes.Role,"user")
-                               
-    //                        };
-    //        var token = new JwtSecurityToken(configuration["Jwt:Issuer"], configuration["Jwt:Audience"], claims: claims, expires: DateTime.Now.AddDays(1), signingCredentials: cred
-    //);
-    //        return new JwtSecurityTokenHandler().WriteToken(token);
-    //    }
-
-
-
-
-        //      private string generayrToken(ApplicationUser userVM)
-        //      {
-        //          var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
-        //          var cred = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256); // Use HmacSha256 algorithm
-        //                                                                                         //   var claimsIdentity = new ClaimsIdentity(new IdentityOptions().ClaimsIdentity);
-        //                                                                                         //   claimsIdentity.AddClaim(new Claim(ClaimTypes.Sub, userId.ToString())); // Use ClaimTypes.Sub for subject
-        //          var claims = new[]
+        //    private string generayrToken(ApplicationUser userVM)
+        //    {
+        //        var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+        //        var cred = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256);
+        //        var claims = new[]
         //{
-        //                              new Claim(ClaimTypes.NameIdentifier, userVM.Id.ToString()),
-        //                              new Claim(ClaimTypes.Email,  userVM.Email)
-        //                              // Add other claims as needed
-        //                          };
-        //          var tokenDescriptor = new SecurityTokenDescriptor
-        //          {
-        //              Subject = new ClaimsIdentity(new Claim[]
-        //                  {
-        //                                  new Claim(ClaimTypes.Email
 
-        //                                      , userVM.Email),
-        //                             //     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-        //                                  new Claim(ClaimTypes.NameIdentifier, userVM.Id),
-        //                                  new Claim("sub", userVM.Id.ToString()
-        //                                       ),
-        //                                 //    new Claim(ClaimTypes.Role, userVM.Role), 
-        //                                  new Claim("nbf", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
-        //                      new Claim("exp", DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds().ToString()),
-        //                      new Claim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
-        //                      // Add other claims as needed
-        //                  }),
+        //                            new Claim(ClaimTypes.Email,  userVM.Email),
+
+        //                            new Claim(ClaimTypes.NameIdentifier,  userVM.Id),
+        //                            new Claim(ClaimTypes.Role,"user")
+
+        //                        };
+        //        var token = new JwtSecurityToken(configuration["Jwt:Issuer"], configuration["Jwt:Audience"], claims: claims, expires: DateTime.Now.AddDays(1), signingCredentials: cred
+        //);
+        //        return new JwtSecurityTokenHandler().WriteToken(token);
+        //    }
 
 
 
 
-        //              Expires = DateTime.UtcNow.AddDays(1), // Token expiry
-        //              SigningCredentials = cred
-        //          };
-        //          var tokenHandler = new JwtSecurityTokenHandler();
-        //          var token = tokenHandler.CreateToken(tokenDescriptor);
-        //          var tokenString = tokenHandler.WriteToken(token);
+        private string generayrToken(ApplicationUser userVM)
+        {
+            var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+            var cred = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256); // Use HmacSha256 algorithm
+                                                                                           //   var claimsIdentity = new ClaimsIdentity(new IdentityOptions().ClaimsIdentity);
+                                                                                           //   claimsIdentity.AddClaim(new Claim(ClaimTypes.Sub, userId.ToString())); // Use ClaimTypes.Sub for subject
+            var claims = new[]
+  {
+                                      new Claim(ClaimTypes.NameIdentifier, userVM.Id.ToString()),
+                                      new Claim(ClaimTypes.Email,  userVM.Email),
+                                     
+                                      // Add other claims as needed
+                                  };
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                    {
+                                          new Claim(ClaimTypes.Email
 
-        //          return tokenString;
-        //      }
+                                              , userVM.Email),
+                                           new Claim(JwtRegisteredClaimNames.Sub, userVM.Provider.ToString()),
+                                     //     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                                          new Claim(ClaimTypes.NameIdentifier, userVM.Id),
+                                          //new Claim("sub", userVM.Id.ToString()
+                                          //     ),
+                                         //    new Claim(ClaimTypes.Role, userVM.Role), 
+                                          new Claim("nbf", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
+                              new Claim("exp", DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds().ToString()),
+                              new Claim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
+                        // Add other claims as needed
+                    }),
+
+
+
+
+                Expires = DateTime.UtcNow.AddDays(1), // Token expiry
+                SigningCredentials = cred
+            };
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
+
+            return tokenString;
+        }
 
 
         [HttpPost]
@@ -164,7 +166,7 @@ namespace grad_proV1.Controllers
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser user = new ApplicationUser() { UserName = userVM.Name, Email = userVM.Email, Address = userVM.Address, PasswordHash = userVM.Password };
+                ApplicationUser user = new ApplicationUser() { UserName = userVM.Name, Email = userVM.Email, Address = userVM.Address, PasswordHash = userVM.Password ,Provider=userVM.Provider};
 
                 var result = await userManager.CreateAsync(user, userVM.Password);
                // await userManager.AddClaimAsync(user, new Claim("userId", user.Id));
@@ -199,7 +201,7 @@ namespace grad_proV1.Controllers
                     {
                         await signIn.SignInAsync(result, userVM.RememberMe);
                   //      var user = await signIn.PasswordSignInAsync(userName, Password, false);
-                        var token = GenerateToken(result);
+                        var token = generayrToken(result);
                      
                         var cookieOptions = new CookieOptions
                          {

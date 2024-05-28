@@ -7,6 +7,7 @@ namespace grad_proV1.Models
 
        // public int Id { get; set; }
         public string Address { get; set; }
+        public int? Provider { get; set; }
 
     }
 }

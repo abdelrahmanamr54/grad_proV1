@@ -7,7 +7,7 @@
         public string UserId { get; set; }
         public int Quantity { get; set; }
 
-
+       
         public Product Product { get; set; }
     }
 }

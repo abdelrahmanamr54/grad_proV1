@@ -51,7 +51,7 @@ namespace grad_proV1.Controllers
                     ValidateAudience = true // Set to true if you want to validate the token audience
                 }, out SecurityToken validatedToken);
 
-                // Extract the user ID from the claims
+
                 var userIdClaim = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier);
                 if (userIdClaim != null)
                 {
@@ -59,7 +59,7 @@ namespace grad_proV1.Controllers
                 }
                 else
                 {
-                    return null; // User ID claim not found in the token
+                    return null; 
                 }
             }
             catch (Exception ex)
@@ -426,6 +426,9 @@ namespace grad_proV1.Controllers
 
                 return Ok(Newusercart);
         }
+
+
+
         [HttpPut("updateQuantity")]
         public IActionResult updateQuantity(int id,int quantity)
         {
@@ -470,18 +473,19 @@ namespace grad_proV1.Controllers
             string userId = userIdClaim.Value;
 
             var item = context.CartItems.Find(id);
-            var itemToUpdate = new CartItem
-            {
-                UserId = item.UserId,
-                ProductId = item.ProductId,
-                Quantity = quantity
-            };
+            item.Quantity = quantity;
+            //var itemToUpdate = new CartItem
+            //{
+            //    UserId = item.UserId,
+            //    ProductId = item.ProductId,
+            //    Quantity = quantity
+            //};
 
-            context.CartItems.Update(itemToUpdate);
+            context.CartItems.Update(item);
             context.SaveChanges();
 
 
-           var Newusercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
+          var Newusercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
 
             return Ok(Newusercart);
         }

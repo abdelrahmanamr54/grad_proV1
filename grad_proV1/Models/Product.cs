@@ -15,6 +15,7 @@
         public int subCategoryId { get; set; }
   
        public Vendor  vendor{ get; set; }
+
         public int vendorId { get; set; }
 
     }

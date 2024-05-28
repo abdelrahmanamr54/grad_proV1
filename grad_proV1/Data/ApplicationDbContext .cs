@@ -47,7 +47,12 @@ namespace grad_proV1.Data
 
  .HasForeignKey(p => p.subcategoyId).OnDelete(DeleteBehavior.Restrict)
 ; // or DeleteBehavior.NoAction
+            modelBuilder.Entity<BookingItem>()
+ .HasOne(p => p.Provider)
+ .WithMany(v => v.BookingItems)
 
+ .HasForeignKey(p => p.ProviderId).OnDelete(DeleteBehavior.Restrict)
+;
         }
         public DbSet<Vendor> vendors { get; set; }
         public DbSet<Product> products { get; set; }
@@ -58,6 +63,8 @@ namespace grad_proV1.Data
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<UserLoginDTO> UserLoginDTO { get; set; } = default!;
         public DbSet<Order> Orders { get; set; }
+        public DbSet<EnrollmentCode> EnrollmentCodes { get; set; }
+        public DbSet<BookingItem> BookingItems { get; set; }
         public DbSet<ApplicationUserDTO> applicationUserDTOs { get; set; }
         //  public DbSet<ProductDTO> productsDTO { get; set; } = default!;
 

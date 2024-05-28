@@ -15,5 +15,6 @@
 
         public Service service  { get; set; }
         public int ServiceId { get; set; }
+        public List<BookingItem> BookingItems { get; set; }
     }
 }
