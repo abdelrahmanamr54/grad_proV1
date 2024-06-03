@@ -129,21 +129,36 @@ namespace grad_proV1.Controllers
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
-                    {
-                                          new Claim(ClaimTypes.Email
+     {
+                           new Claim(ClaimTypes.Email
 
-                                              , userVM.Email),
-                                           new Claim("sub", userVM.Provider.ToString()),
-                                     //     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                                          new Claim(ClaimTypes.NameIdentifier, userVM.Id),
-                                          //new Claim("sub", userVM.Id.ToString()
-                                          //     ),
-                                         //    new Claim(ClaimTypes.Role, userVM.Role), 
-                                          new Claim("nbf", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
-                              new Claim("exp", DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds().ToString()),
-                              new Claim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
-                        // Add other claims as needed
-                    }),
+                               , userVM.Email),
+                            //new Claim("sub", userVM.Provider.ToString()),
+                      //     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                           new Claim(ClaimTypes.NameIdentifier, userVM.Id),
+                           new Claim("sub", userVM.Provider.ToString()),
+                          //    new Claim(ClaimTypes.Role, userVM.Role), 
+                           new Claim("nbf", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
+               new Claim("exp", DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds().ToString()),
+               new Claim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
+         // Add other claims as needed
+     }),
+                //Subject = new ClaimsIdentity(new Claim[]
+                //    {
+                //                          new Claim(ClaimTypes.Email
+
+                //                              , userVM.Email),
+                //                           new Claim("sub", userVM.Provider.ToString()),
+                //                          new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                //                          new Claim(ClaimTypes.NameIdentifier, userVM.Id),
+                //                          new Claim("sub", userVM.Id.ToString()
+                //                               ),
+                //                             new Claim(ClaimTypes.Role, userVM.Role),
+                //                          new Claim("nbf", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
+                //              new Claim("exp", DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds().ToString()),
+                //              new Claim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
+                //         Add other claims as needed
+                //    }),
 
 
 

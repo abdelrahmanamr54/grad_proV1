@@ -1,4 +1,5 @@
 ﻿using grad_proV1.Data;
+using grad_proV1.Dtos;
 using grad_proV1.IRepositery;
 using grad_proV1.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -221,10 +222,10 @@ namespace grad_proV1.Controllers
 
                 string userId = userIdClaim.Value;
 
+                var usercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId && !e.IsDeleted).ToList();
+              //  var usercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
 
-                var usercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
-
-
+               var usercart1 = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId && !e.IsDeleted).ToList().Count();
 
                 var order = new Order();
 
@@ -244,11 +245,19 @@ namespace grad_proV1.Controllers
 
                 var ordersv1 = context.Orders.Select(e => e.products);
 
+               double totalPrice = usercart.Sum(cartItem => cartItem.Product.Price * cartItem.Quantity);
 
 
-                //  var usercartv = context.Orders.Include(e => e.cartItems).Where(e => e. == userId).ToList();
+                return Ok(new
+                {
+                    list = usercart,
+                    usercart1,
+                    totalPrice
 
-                return Ok(usercart);
+
+                });
+
+                // return Ok(usercart);
             }
             catch (Exception ex)
             {
@@ -311,19 +320,24 @@ namespace grad_proV1.Controllers
                 var order = new Order();
 
 
-                order.products = new List<Product>();
+                order.CartItems = new List<CartItem>();
 
 
                 foreach (var cartItem in usercart)
                 {
 
-                    order.products.Add(cartItem.Product);
+                    order.CartItems.Add(cartItem);
                 }
 
 
                 context.Orders.Add(order);
+                foreach (var cartItem in usercart)
+                {
+                    cartItem.IsDeleted = true;
+                    context.CartItems.Update(cartItem);
+                }
                 context.SaveChanges();
-                return Ok();
+                return Ok(usercart);
             }
             catch (Exception ex)
             {
@@ -334,11 +348,27 @@ namespace grad_proV1.Controllers
 
         }
         [HttpGet]
+        [Route("DisplayAllCartItems")]
+        public ActionResult DisplayAllCartItems()
+        {
+            var orders = context.Orders
+                                 .Include(o => o.CartItems)
+                                 .ToList();
+
+            var viewModel = orders.Select(order => new OrderDTO
+            {
+                OrderId = order.Id,
+                CartItems = order.CartItems
+            }).ToList();
+
+            return Ok(viewModel);
+        }
+        [HttpGet]
         [Route("getAllOrder")]
         public IActionResult getAllOrder()
         {
 
-            var orders = context.Orders.Include(e => e.products).ToList();
+            var orders = context.Orders.Include(e => e.CartItems).ToList();
             return Ok(orders);
         }
         [HttpGet]
@@ -364,7 +394,22 @@ namespace grad_proV1.Controllers
             }
             return Ok();
         }
+        //[HttpGet]
+        //[Route("getAllorder")]
 
+        //public async Task<IActionResult> getAllorder()
+        //{
+        //    var orders = await context.Orders
+        //                              .Include(o => o.products)
+        //                              .ToListAsync();
+
+        //    //var viewModel = new OrderViewModel
+        //    //{
+        //    //    Orders = orders
+        //    //};
+
+        //    return Ok(orders);
+        //}
         [HttpGet]
         // [Authorize]
         public IActionResult getAllCarst()
@@ -484,10 +529,21 @@ namespace grad_proV1.Controllers
             context.CartItems.Update(item);
             context.SaveChanges();
 
+            var Newusercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId && !e.IsDeleted).ToList();
+            //var Newusercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
+            
+            var usercart1 = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId && !e.IsDeleted).ToList().Count();
+            double totalPrice = Newusercart.Sum(cartItem => cartItem.Product.Price * cartItem.Quantity);
+            return Ok(new
+            {
+                list = Newusercart,
+                usercart1,
+                totalPrice
 
-          var Newusercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
 
-            return Ok(Newusercart);
+            });
+
+            // return Ok(totalPrice);
         }
 
 

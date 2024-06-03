@@ -240,6 +240,9 @@ namespace grad_proV1.Controllers
                           Id = bookingItem.Id,
                           UserId = bookingItem.UserId,
                           UserName = user.UserName,
+                          UserEmail=user.Email,
+                         
+
                           ProviderId = bookingItem.ProviderId,
                           Provider = bookingItem.Provider,
                           EnrollmentCode = bookingItem.EnrollmentCode
