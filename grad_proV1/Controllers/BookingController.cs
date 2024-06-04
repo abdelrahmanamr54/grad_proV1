@@ -237,10 +237,10 @@ namespace grad_proV1.Controllers
                       user => user.Id,
                       (bookingItem, user) => new BookingItemViewModel
                       {
-                          Id = bookingItem.Id,
-                          UserId = bookingItem.UserId,
+                          Id =  bookingItem.Id,
+                          UserId =   bookingItem.UserId,
                           UserName = user.UserName,
-                          UserEmail=user.Email,
+                          UserEmail=    user.Email,
                          
 
                           ProviderId = bookingItem.ProviderId,

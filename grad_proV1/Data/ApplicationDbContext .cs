@@ -65,6 +65,7 @@ namespace grad_proV1.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<EnrollmentCode> EnrollmentCodes { get; set; }
         public DbSet<BookingItem> BookingItems { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<ApplicationUserDTO> applicationUserDTOs { get; set; }
         //  public DbSet<ProductDTO> productsDTO { get; set; } = default!;
 

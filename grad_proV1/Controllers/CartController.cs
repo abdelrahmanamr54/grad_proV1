@@ -222,28 +222,28 @@ namespace grad_proV1.Controllers
 
                 string userId = userIdClaim.Value;
 
-                var usercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId && !e.IsDeleted).ToList();
+                var usercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId ).ToList();
               //  var usercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
 
-               var usercart1 = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId && !e.IsDeleted).ToList().Count();
+               var usercart1 = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId ).ToList().Count();
 
-                var order = new Order();
-
-
-                order.products = new List<Product>();
+                //var order = new Order();
 
 
-                foreach (var cartItem in usercart)
-                {
-
-                    order.products.Add(cartItem.Product);
-                }
+                //order.products = new List<Product>();
 
 
-                context.Orders.Add(order);
-                context.SaveChanges();
+                //foreach (var cartItem in usercart)
+                //{
+                    
+                //    order.products.Add(cartItem.Product);
+                //}
 
-                var ordersv1 = context.Orders.Select(e => e.products);
+
+                //context.Orders.Add(order);
+                //context.SaveChanges();
+
+                //var ordersv1 = context.Orders.Select(e => e.products);
 
                double totalPrice = usercart.Sum(cartItem => cartItem.Product.Price * cartItem.Quantity);
 
@@ -267,7 +267,7 @@ namespace grad_proV1.Controllers
         }
         [HttpPost]
         [Route("checkout")]
-        public IActionResult checkout()
+        public async Task<IActionResult> checkout()
         {
             try
             {
@@ -314,30 +314,46 @@ namespace grad_proV1.Controllers
 
 
                 var usercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
-
-
-
-                var order = new Order();
-
-
-                order.CartItems = new List<CartItem>();
-
-
-                foreach (var cartItem in usercart)
+                Order order = new Order
                 {
+                    UserId = userId,
+                     OrderDate = DateTime.UtcNow,
 
-                    order.CartItems.Add(cartItem);
-                }
+                    OrderItems = usercart.Select(ci => new OrderItem
+                    {
 
+                        ProductId = ci.ProductId,
+                        Quantity = ci.Quantity
+                    }).ToList()
+                };
 
                 context.Orders.Add(order);
-                foreach (var cartItem in usercart)
-                {
-                    cartItem.IsDeleted = true;
-                    context.CartItems.Update(cartItem);
-                }
-                context.SaveChanges();
-                return Ok(usercart);
+                //var order = new Order();
+
+
+                //order.CartItems = new List<CartItem>();
+
+
+                //foreach (var cartItem in usercart)
+                //{
+
+                //    order.CartItems.Add(cartItem);
+                //}
+
+
+                //context.Orders.Add(order);
+                //foreach (var cartItem in usercart)
+                //{
+                //    context.CartItems.Remove(cartItem);
+                //    context.SaveChanges();
+                //    //cartItem.IsDeleted = true;
+                //    //context.CartItems.Update(cartItem);
+                //}
+                await context.SaveChangesAsync();
+                context.CartItems.RemoveRange(usercart);
+                //  context.SaveChanges();
+
+                return Ok(order);
             }
             catch (Exception ex)
             {
@@ -346,30 +362,31 @@ namespace grad_proV1.Controllers
             }
 
 
+
         }
         [HttpGet]
         [Route("DisplayAllCartItems")]
         public ActionResult DisplayAllCartItems()
         {
             var orders = context.Orders
-                                 .Include(o => o.CartItems)
+                                 .Include(o => o.OrderItems)
                                  .ToList();
 
             var viewModel = orders.Select(order => new OrderDTO
             {
                 OrderId = order.Id,
-                CartItems = order.CartItems
+                OrderItems= order.OrderItems
             }).ToList();
 
-            return Ok(viewModel);
-        }
+            return Ok();
+        }                                                      
         [HttpGet]
         [Route("getAllOrder")]
         public IActionResult getAllOrder()
         {
 
-            var orders = context.Orders.Include(e => e.CartItems).ToList();
-            return Ok(orders);
+            //var orders = context.Orders.Include(e => e.CartItems).ToList();
+            return Ok();
         }
         [HttpGet]
 
