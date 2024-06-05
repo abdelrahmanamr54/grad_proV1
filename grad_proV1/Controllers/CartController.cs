@@ -8,7 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using System;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 
@@ -267,7 +270,7 @@ namespace grad_proV1.Controllers
         }
         [HttpPost]
         [Route("checkout")]
-        public async Task<IActionResult> checkout()
+        public async Task<IActionResult> checkout( string secNum,string address)
         {
             try
             {
@@ -319,9 +322,11 @@ namespace grad_proV1.Controllers
                     UserId = userId,
                      OrderDate = DateTime.UtcNow,
 
+                     OptionalNum=secNum,
+                     UserAddress=address,
                     OrderItems = usercart.Select(ci => new OrderItem
                     {
-
+                        Product=ci.Product,
                         ProductId = ci.ProductId,
                         Quantity = ci.Quantity
                     }).ToList()
@@ -349,8 +354,9 @@ namespace grad_proV1.Controllers
                 //    //cartItem.IsDeleted = true;
                 //    //context.CartItems.Update(cartItem);
                 //}
-                await context.SaveChangesAsync();
                 context.CartItems.RemoveRange(usercart);
+                await context.SaveChangesAsync();
+            
                 //  context.SaveChanges();
 
                 return Ok(order);
@@ -623,5 +629,113 @@ namespace grad_proV1.Controllers
             }
 
         }
+        [HttpGet]
+        [Route("GetUserOrder")]
+
+        public IActionResult GetUserOrder()
+        {
+            try
+            {
+
+                var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+                if (token == null)
+                {
+                    return Unauthorized("Authorization token is missing.");
+                }
+
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var tokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("MnGsJFpXngBcaNeMSqIviSJbrOwaWM")),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                SecurityToken validatedToken;
+                ClaimsPrincipal claimsPrincipal;
+
+                try
+                {
+                    claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out validatedToken);
+                }
+                catch (Exception ex)
+                {
+                    return Unauthorized("Invalid token: " + ex.Message);
+                }
+
+                // Find the claim containing the user ID
+                var userIdClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User ID claim not found in token.");
+                }
+
+                string userId = userIdClaim.Value;
+
+                var usercart = context.Orders.Include(e => e.OrderItems).ThenInclude(o=>o.Product).Where(e => e.UserId == userId).ToList();
+                //var usercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
+
+
+
+                var usercart1 = context.Orders.Include(e => e.products).Where(e => e.UserId == userId).ToList().Count();
+
+                //var order = new Order();
+                //Order order = new Order
+                //{
+                //    UserId = userId,
+                //    OrderDate = DateTime.UtcNow,
+
+                //    OptionalNum = ,
+                //    UserAddress = address,
+                //    OrderItems = usercart.Select(ci => new OrderitemDTO
+                //    {
+
+                //        ProductId = ci.,
+                //        Quantity = ci.Quantity
+                //    }).ToList()
+                //};
+
+                //order.products = new List<Product>();
+
+
+                //foreach (var cartItem in usercart)
+                //{
+
+                //    order.products.Add(cartItem.CartItems);
+                //}
+
+
+                //context.Orders.Add(order);
+                //context.SaveChanges();
+
+                var ordersv1 = context.Orders.Select(e => e.products);
+
+                //double totalPrice = usercart.Sum(cartItem => cartItem.Product.Price * cartItem.Quantity);
+
+
+                return Ok(
+                    //viewModel
+                usercart
+                //usercart1,
+                //totalPrice
+
+
+                );
+
+                // return Ok(usercart);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred: " + ex.Message);
+
+            }
+        }
+
     }
+
 }

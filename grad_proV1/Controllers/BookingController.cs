@@ -222,7 +222,7 @@ namespace grad_proV1.Controllers
             }
 
             // Find the claim containing the user ID
-            var userIdClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            var userIdClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.HomePhone);
 
             if (userIdClaim == null)
             {
@@ -250,6 +250,123 @@ namespace grad_proV1.Controllers
             .Where(e=>e.ProviderId.ToString() == userId)   .ToListAsync();
 
             return Ok(bookingItems) ;
+        }
+        [HttpGet]
+        [Route("selectCode")]
+        public async Task<IActionResult> selectCode ()
+        {
+            var selectedcode = context.EnrollmentCodes.First();
+
+
+            return Ok(selectedcode);
+                }
+
+            [HttpGet]
+        [Route("GetUserbooking")]
+
+        public async Task<IActionResult> GetUserbooking()
+        {
+            try
+            {
+
+                var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+                if (token == null)
+                {
+                    return Unauthorized("Authorization token is missing.");
+                }
+
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var tokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("MnGsJFpXngBcaNeMSqIviSJbrOwaWM")),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                SecurityToken validatedToken;
+                ClaimsPrincipal claimsPrincipal;
+
+                try
+                {
+                    claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out validatedToken);
+                }
+                catch (Exception ex)
+                {
+                    return Unauthorized("Invalid token: " + ex.Message);
+                }
+
+                // Find the claim containing the user ID
+                var userIdClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User ID claim not found in token.");
+                }
+
+                string userId = userIdClaim.Value;
+
+                var usercart = context.BookingItems.Where(e => e.UserId == userId).Include(e=>e.Provider).Select(e=>new {e.UserId, e.Provider,e.EnrollmentCode }).ToList();
+
+
+                var bookingItems = await context.BookingItems
+            .Include(b => b.Provider)
+            .Join(context.Users,
+                  bookingItem => bookingItem.UserId,
+                  user => user.Id,
+                  (bookingItem, user) => new BookingItemViewModel
+                  {
+                      Id = bookingItem.Id,
+                      UserId = bookingItem.UserId,
+                      UserName = user.UserName,
+                      UserEmail = user.Email,
+
+
+                      ProviderId = bookingItem.ProviderId,
+                      ProviderName = bookingItem.Provider.Name,
+                      EnrollmentCode = bookingItem.EnrollmentCode
+                  })
+        .Where(e => e.UserId == userId).ToListAsync();
+                //var viewModel = usercart.Select(order => new BookingItemDTO
+                //{
+                //    UserId = order.UserId,
+                //    ProviderId = order.ProviderId,
+                //    Provider = context.providers.Find(order.ProviderId),
+                //    EnrollmentCode=order.EnrollmentCode
+                //}).ToList();
+               // context.Entry(usercart).State = EntityState.Added;
+                var jsonSerializerOptions = new JsonSerializerOptions
+                {
+                    ReferenceHandler = ReferenceHandler.Preserve,
+
+                    // Other options as needed                                                 
+                };
+
+                // Serialize the object using JsonSerializerOptions
+                var jsonResponse = JsonSerializer.Serialize(usercart, jsonSerializerOptions);
+
+                // Return the serialized object
+                return Ok(usercart);
+
+                return Ok(
+
+                  bookingItems
+                //usercart1,
+                //totalPrice
+
+
+                );
+
+                // return Ok(usercart);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred: " + ex.Message);
+
+            }
         }
 
 
