@@ -213,13 +213,11 @@ namespace grad_proV1.Controllers
                 {
                     bool check = await userManager.CheckPasswordAsync(result, userVM.Password);
 
-                //    var user = await signIn.PasswordSignInAsync(username, password, false);
-                  //  var claimsPrincipal = await userManager.GetUsersForClaimAsync();
 
                     if (check)
                     {
                         await signIn.SignInAsync(result, userVM.RememberMe);
-                  //      var user = await signIn.PasswordSignInAsync(userName, Password, false);
+                
                         var token = generayrToken(result);
                      
                         var cookieOptions = new CookieOptions

@@ -160,14 +160,16 @@ namespace grad_proV1.Controllers
 
                 string userId = userIdClaim.Value;
                 var addedToCart = await cartRepository.AddToCartAsync(productId, userId);
+                var usercart1 = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList().Count();
                 if (addedToCart)
                 {
-                    var response = JsonConvert.SerializeObject(new { message = "Product added to cart", productId = productId });
+                    var response = JsonConvert.SerializeObject(new { message = "Product added to cart", productId = productId ,usercart1});
                     return Ok(response);
                 }
 
 
-                return Ok("Product successfully added to cart.");
+                 return Ok("Product successfully added to cart.");
+               // return Ok(new {Msg= "Product successfully added to cart." });
             }
             catch (Exception ex)
             {
@@ -320,7 +322,7 @@ namespace grad_proV1.Controllers
                 Order order = new Order
                 {
                     UserId = userId,
-                     OrderDate = DateTime.UtcNow,
+                     OrderDate = DateTime.Now,
 
                      OptionalNum=secNum,
                      UserAddress=address,
@@ -333,27 +335,10 @@ namespace grad_proV1.Controllers
                 };
 
                 context.Orders.Add(order);
-                //var order = new Order();
+              
 
 
-                //order.CartItems = new List<CartItem>();
-
-
-                //foreach (var cartItem in usercart)
-                //{
-
-                //    order.CartItems.Add(cartItem);
-                //}
-
-
-                //context.Orders.Add(order);
-                //foreach (var cartItem in usercart)
-                //{
-                //    context.CartItems.Remove(cartItem);
-                //    context.SaveChanges();
-                //    //cartItem.IsDeleted = true;
-                //    //context.CartItems.Update(cartItem);
-                //}
+              
                 context.CartItems.RemoveRange(usercart);
                 await context.SaveChangesAsync();
             
@@ -444,12 +429,12 @@ namespace grad_proV1.Controllers
         [HttpDelete]
         public IActionResult DeleteCart(int id)
         {
+
             cartRepository.Delete(id);
-
             //var items = context.CartItems.ToList();
-           
 
-                var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
                 if (token == null)
                 {
@@ -489,10 +474,18 @@ namespace grad_proV1.Controllers
 
                 string userId = userIdClaim.Value;
 
+           // cartRepository.Delete(id);
+            var Newusercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
+            var usercart1 = context.CartItems.Where(e => e.UserId == userId).ToList().Count();
+            double totalPrice = Newusercart.Sum(cartItem => cartItem.Product.Price * cartItem.Quantity);
+            //  return Ok(Newusercart);
+            return Ok(new
+            {
+              list=  Newusercart,
+                usercart1,
+                totalPrice
 
-                var Newusercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
-
-                return Ok(Newusercart);
+            });
         }
 
 
@@ -542,18 +535,13 @@ namespace grad_proV1.Controllers
 
             var item = context.CartItems.Find(id);
             item.Quantity = quantity;
-            //var itemToUpdate = new CartItem
-            //{
-            //    UserId = item.UserId,
-            //    ProductId = item.ProductId,
-            //    Quantity = quantity
-            //};
+           
 
             context.CartItems.Update(item);
             context.SaveChanges();
 
             var Newusercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId && !e.IsDeleted).ToList();
-            //var Newusercart = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId).ToList();
+            
             
             var usercart1 = context.CartItems.Include(e => e.Product).Where(e => e.UserId == userId && !e.IsDeleted).ToList().Count();
             double totalPrice = Newusercart.Sum(cartItem => cartItem.Product.Price * cartItem.Quantity);
@@ -566,7 +554,7 @@ namespace grad_proV1.Controllers
 
             });
 
-            // return Ok(totalPrice);
+         
         }
 
 
@@ -684,50 +672,23 @@ namespace grad_proV1.Controllers
 
                 var usercart1 = context.Orders.Include(e => e.products).Where(e => e.UserId == userId).ToList().Count();
 
-                //var order = new Order();
-                //Order order = new Order
-                //{
-                //    UserId = userId,
-                //    OrderDate = DateTime.UtcNow,
+              
 
-                //    OptionalNum = ,
-                //    UserAddress = address,
-                //    OrderItems = usercart.Select(ci => new OrderitemDTO
-                //    {
-
-                //        ProductId = ci.,
-                //        Quantity = ci.Quantity
-                //    }).ToList()
-                //};
-
-                //order.products = new List<Product>();
-
-
-                //foreach (var cartItem in usercart)
-                //{
-
-                //    order.products.Add(cartItem.CartItems);
-                //}
-
-
-                //context.Orders.Add(order);
-                //context.SaveChanges();
 
                 var ordersv1 = context.Orders.Select(e => e.products);
 
-                //double totalPrice = usercart.Sum(cartItem => cartItem.Product.Price * cartItem.Quantity);
+               
 
 
                 return Ok(
-                    //viewModel
+                
                 usercart
-                //usercart1,
-                //totalPrice
+               
 
 
                 );
 
-                // return Ok(usercart);
+               
             }
             catch (Exception ex)
             {
@@ -736,6 +697,18 @@ namespace grad_proV1.Controllers
             }
         }
 
-    }
+        [HttpGet]
+        [Route("GetUserOrderById")]
+        public IActionResult GetUserOrderById(int id)
+        {
+
+            var selectedOrder = context.Orders.Include(e => e.OrderItems).ThenInclude(o => o.Product).Where(e=>e.Id==id);
+        //    double totalPrice = selectedOrder.Sum(cartItem => cartItem.OrderItems.p * cartItem.Quantity);
+
+            return Ok(selectedOrder);
+        }
+
+
+        }
 
 }

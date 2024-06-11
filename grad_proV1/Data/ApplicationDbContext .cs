@@ -30,10 +30,7 @@ namespace grad_proV1.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            //modelBuilder.Entity<Laptop>()
-            //    .HasOne(l => l.brand)
-            //    .WithMany()
-            //    .HasForeignKey(l => l.BrandId);
+           
             modelBuilder.Entity<Product>()
     .HasOne(p => p.vendor)
     .WithMany(v => v.products)

@@ -368,7 +368,19 @@ namespace grad_proV1.Controllers
 
             }
         }
+        [HttpDelete]
+        [Route("deleteBookingItem")]
+        public async Task<IActionResult> deleteBookingItem(int id )
+        {
 
 
-    }
+            var deleteditem = await context.BookingItems.FindAsync(id);
+            context.BookingItems.Remove(deleteditem);
+            context.SaveChanges();
+            return Ok();
+
+        }
+
+
+        }
 }
